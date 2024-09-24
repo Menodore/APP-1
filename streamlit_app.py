@@ -8,7 +8,6 @@ def init_board():
 
 # Check for a winner
 def check_winner(board, player):
-    # Rows, columns, and diagonals check
     for i in range(3):
         if all([cell == player for cell in board[i, :]]) or all([cell == player for cell in board[:, i]]):
             return True
@@ -39,36 +38,36 @@ def render_symbol(symbol):
 def main():
     st.title("Tic Tac Toe 🎮")
 
-    # Select mode: Human vs. Human or Human vs. Computer
+    # Game Mode Selector
     mode = st.selectbox("Choose Game Mode:", ["Human vs. Human", "Human vs. Computer"])
 
-    # Initialize the game board in session state to retain state
+    # Session state initialization
     if 'board' not in st.session_state:
         st.session_state.board = init_board()
         st.session_state.current_player = 'X'  # X always starts
         st.session_state.winner = None
         st.session_state.draw = False
 
-    # Display the game board with styled layout
+    # Optimize by running only on user interaction
+    user_clicked = False  # Track if any button was clicked
     for i in range(3):
-        cols = st.columns(3)  # Create three equal columns for the board
+        cols = st.columns(3)
         for j in range(3):
-            # Check if cell is empty and clickable
+            # Render cell content or button based on game state
             if st.session_state.board[i, j] == '':
-                # Create a button for empty cells and handle clicks
-                if cols[j].button(" ", key=f'{i}{j}', help="Click to play"):
-                    if st.session_state.current_player == 'X' or mode == "Human vs. Human":
-                        st.session_state.board[i, j] = st.session_state.current_player
-                        # Check for winner or draw
-                        if check_winner(st.session_state.board, st.session_state.current_player):
-                            st.session_state.winner = st.session_state.current_player
-                        elif is_draw(st.session_state.board):
-                            st.session_state.draw = True
-                        else:
-                            # Switch player
-                            st.session_state.current_player = 'O' if st.session_state.current_player == 'X' else 'X'
+                if cols[j].button(" ", key=f'{i}{j}'):
+                    user_clicked = True
+                    st.session_state.board[i, j] = st.session_state.current_player
+                    # Check for winner or draw
+                    if check_winner(st.session_state.board, st.session_state.current_player):
+                        st.session_state.winner = st.session_state.current_player
+                    elif is_draw(st.session_state.board):
+                        st.session_state.draw = True
+                    else:
+                        # Switch player if it's not a draw or win
+                        st.session_state.current_player = 'O' if st.session_state.current_player == 'X' else 'X'
 
-                    # Computer move in Human vs. Computer mode
+                    # Computer's turn if mode is vs. computer and user clicked
                     if mode == "Human vs. Computer" and not st.session_state.winner and not st.session_state.draw:
                         computer_move(st.session_state.board)
                         if check_winner(st.session_state.board, 'O'):
@@ -76,8 +75,11 @@ def main():
                         elif is_draw(st.session_state.board):
                             st.session_state.draw = True
             else:
-                # Display the symbol using markdown to render it with color
+                # Display symbol
                 cols[j].markdown(render_symbol(st.session_state.board[i, j]), unsafe_allow_html=True)
+
+        if i < 2:
+            st.markdown('___|___|___')  # Board divider
 
     # Display winner or draw message
     if st.session_state.winner:
@@ -85,7 +87,7 @@ def main():
     elif st.session_state.draw:
         st.info("It's a draw!")
 
-    # Restart game button
+    # Restart button
     if st.button("Restart Game"):
         st.session_state.board = init_board()
         st.session_state.current_player = 'X'
