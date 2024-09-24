@@ -30,10 +30,10 @@ def computer_move(board):
 # Render symbols with colors
 def render_symbol(symbol):
     if symbol == 'X':
-        return '<span style="color: red; font-size: 48px;">&#10060;</span>'  # Red cross
+        return '<span style="color: red; font-size: 48px;">&#10060;</span>'  # Red cross (X)
     elif symbol == 'O':
-        return '<span style="color: green; font-size: 48px;">&#11093;</span>'  # Green circle
-    return ' '
+        return '<span style="color: green; font-size: 48px;">&#11093;</span>'  # Green circle (O)
+    return '<span style="font-size: 48px;">&nbsp;</span>'  # Empty space for buttons
 
 # Main function for the Streamlit app
 def main():
@@ -49,14 +49,14 @@ def main():
         st.session_state.winner = None
         st.session_state.draw = False
 
-    # Display the game board with styled dividers
+    # Display the game board with styled layout
     for i in range(3):
-        cols = st.columns([1, 1, 1])  # Create three equal columns for the board
+        cols = st.columns(3)  # Create three equal columns for the board
         for j in range(3):
-            # Render button or symbol based on board state
+            # Check if cell is empty and clickable
             if st.session_state.board[i, j] == '':
-                if cols[j].button(' ', key=f'{i}{j}', args=(i, j)):
-                    # Handle player move
+                # Create a button for empty cells and handle clicks
+                if cols[j].button(" ", key=f'{i}{j}', help="Click to play"):
                     if st.session_state.current_player == 'X' or mode == "Human vs. Human":
                         st.session_state.board[i, j] = st.session_state.current_player
                         # Check for winner or draw
@@ -76,7 +76,7 @@ def main():
                         elif is_draw(st.session_state.board):
                             st.session_state.draw = True
             else:
-                # Display the symbols with custom styling
+                # Display the symbol using markdown to render it with color
                 cols[j].markdown(render_symbol(st.session_state.board[i, j]), unsafe_allow_html=True)
 
         # Add row dividers to resemble the board structure
