@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import random
+
 # Initialize the board
 def init_board():
     return np.array([['', '', ''], ['', '', ''], ['', '', '']])
@@ -26,6 +27,14 @@ def computer_move(board):
         move = random.choice(empty_cells)
         board[move[0], move[1]] = 'O'
 
+# Render symbols with colors
+def render_symbol(symbol):
+    if symbol == 'X':
+        return '<span style="color: red; font-size: 48px;">&#10060;</span>'  # Red cross
+    elif symbol == 'O':
+        return '<span style="color: green; font-size: 48px;">&#11093;</span>'  # Green circle
+    return ' '
+
 # Main function for the Streamlit app
 def main():
     st.title("Tic Tac Toe 🎮")
@@ -40,12 +49,14 @@ def main():
         st.session_state.winner = None
         st.session_state.draw = False
 
-    # Display the game board
+    # Display the game board with styled dividers
     for i in range(3):
-        cols = st.columns(3)
+        cols = st.columns([1, 1, 1])  # Create three equal columns for the board
         for j in range(3):
+            # Render button or symbol based on board state
             if st.session_state.board[i, j] == '':
-                if cols[j].button('', key=f'{i}{j}'):
+                if cols[j].button(' ', key=f'{i}{j}', args=(i, j)):
+                    # Handle player move
                     if st.session_state.current_player == 'X' or mode == "Human vs. Human":
                         st.session_state.board[i, j] = st.session_state.current_player
                         # Check for winner or draw
@@ -64,6 +75,13 @@ def main():
                             st.session_state.winner = 'O'
                         elif is_draw(st.session_state.board):
                             st.session_state.draw = True
+            else:
+                # Display the symbols with custom styling
+                cols[j].markdown(render_symbol(st.session_state.board[i, j]), unsafe_allow_html=True)
+
+        # Add row dividers to resemble the board structure
+        if i < 2:
+            st.markdown('___|___|___')
 
     # Display winner or draw message
     if st.session_state.winner:
@@ -81,4 +99,3 @@ def main():
 # Run the app
 if __name__ == "__main__":
     main()
-
