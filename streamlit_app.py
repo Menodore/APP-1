@@ -79,10 +79,6 @@ def main():
                 # Display the symbol using markdown to render it with color
                 cols[j].markdown(render_symbol(st.session_state.board[i, j]), unsafe_allow_html=True)
 
-        # Add row dividers to resemble the board structure
-        if i < 2:
-            st.markdown('___|___|___')
-
     # Display winner or draw message
     if st.session_state.winner:
         st.success(f"Player {st.session_state.winner} wins!")
